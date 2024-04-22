@@ -13,106 +13,54 @@ import java.util.Scanner;
  */
 public class ConejoEnFasciculos {
 
-   private static String[][] nombres;
-    private static char[][] simbolos;
-    private static int[] turnoInicial;
-    private static int[][] contador; 
-    private static int[] dimensiones;
-    private static char[][][] tableros;
-    private static Juego[] partidas;
-    private static boolean[] resultadosPartidas;
-    private static int Saltator=-1;
-   
-
-    public static void main(String[] args) {
+  public static void main(String[] args) {
         Scanner leer = new Scanner(System.in);
         IntroduccionNombres introduccionNombres = new IntroduccionNombres();
+        String[] nombres = introduccionNombres.obtenerNombres(leer);
         
-        // Solicitar el número de partidas
-        System.out.print("¿Cuántas partidas deseas jugar? ");
-        int numPartidas = leer.nextInt();
-        leer.nextLine();
         
-        // Inicializar arreglos para almacenar datos de las partidas
-        nombres = new String[numPartidas][2];
-        simbolos = new char[numPartidas][2];
-        turnoInicial = new int[numPartidas];
-        dimensiones = new int[numPartidas];
-        tableros = new char[numPartidas][][];
-        partidas = new Juego[numPartidas];
-        resultadosPartidas = new boolean[numPartidas];
-        contador = new int[numPartidas][]; 
+        Simbolos introsimbolos= new Simbolos();
+        
+        char[] simbolos = introsimbolos.obtenersimbolos(leer, nombres);
+        
+        Turno turno= new Turno();
+        
+        int turnoInicial = turno.orden(nombres, leer);
+
+        Dimension dimensiones = new Dimension();
+        
+        int dimension=dimensiones.obtenerDimension(leer), contador = 0;
+
+        char[][] tablero = new char[dimension][dimension];
+        
+        Tablero[] tablero2 = new Tablero[2];
+                Juego[] juego = new Juego[2];
        
-        
-        // Obtener nombres y configuración de las partidas
-        String[] nombresPartida = introduccionNombres.obtenerNombres(leer);
-        for (int i = 0; i < numPartidas; i++) {
-            System.out.println("Introducid datos partida "+ (i + 1));
-            nombres[i] = nombresPartida; // Establecer los mismos nombres para todas las partidas
-            
-            Simbolos introsimbolos = new Simbolos(); //El resto de los elementos se establece de manera manualhgbv
-            simbolos[i] = introsimbolos.obtenersimbolos(leer, nombres[i]);
 
-            Turno turno = new Turno();
-            turnoInicial[i] = turno.orden(nombres[i], leer);
-            contador[i] = new int[1]; 
-            contador[i][0] = 0; 
-            Dimension dimensionesObj = new Dimension();
-            dimensiones[i] = dimensionesObj.obtenerDimension(leer);
-
-            Tablero tableroJuego = new Tablero();
-            tableroJuego.inicializarTablero(dimensiones[i]);
-            tableros[i] = tableroJuego.getTablero();
-        }
-        
-        saltitos();
-        
-        
-        
-    }
-
-    // Saltitos es el proceso principal donde se ejecutan las partidas
-    public static void saltitos() {
-        while (!EstadosPartidas()) {
-            if (Saltator == resultadosPartidas.length - 1) {
-                Saltator = 0;
-            } else {
-                Saltator++;
-            }
-            if (!resultadosPartidas[Saltator]) {
-                turnoInicial[Saltator]++;
-                resultadosPartidas[Saltator] = Juego.iniciarJuego(tableros[Saltator], dimensiones[Saltator], simbolos[Saltator][0], simbolos[Saltator][1], 
-                        nombres[Saltator][0], nombres[Saltator][1], turnoInicial[Saltator], contador[Saltator]); 
-            }
-        }
-        System.out.println("Todas las partidas han terminado.");
-    }
-
-    // Verifica si todas las partidas han terminado
-    private static boolean EstadosPartidas() {
-        for (int i = 0; i < resultadosPartidas.length; i++) {
-            if (!resultadosPartidas[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-   
+for (int i = 0; i < juego.length; i++) {
+    juego[i] = new Juego();
 }
-
-
-   
-       
-
-
+        for (int i = 0; i < tablero2.length; i++) {
+    tablero2[i] = new Tablero();
+    tablero2[i].inicializarTablero(dimension);
+}
         
         
         
 
 
-
-    
+for (int i = 0; i < juego.length; i++) {
+    if (turnoInicial == 1) {
+        juego[i].iniciarJuego(tablero2[i].getTablero(), dimension, simbolos[0], simbolos[1], nombres[0], nombres[1]);
+    } else {
+        juego[i].iniciarJuego(tablero2[i].getTablero(), dimension, simbolos[1], simbolos[0], nombres[1], nombres[0]);
+    }
+}
+        }
+        
+        
+        
+    }
 
     
 
@@ -120,15 +68,12 @@ public class ConejoEnFasciculos {
 
 
 class IntroduccionNombres {
-    // Método para obtener los nombres de los jugadores
     public String[] obtenerNombres(Scanner leer) {
         String[] nombres = new String[2];
-        System.out.print("Introduzca nombre del jugador 1: ");
+        System.out.print("Introduzca nombre de jugador: ");
         nombres[0] = leer.next();
-        System.out.print("Introduzca nombre del jugador 2: ");
+        System.out.print("Introduzca nombre del otro jugador: ");
         nombres[1] = leer.next();
-        
-        // Verificar que los nombres sean diferentes
         while (nombres[1].equals(nombres[0])) {
             System.out.print("Nombre no válido, introduzca otro: ");
             nombres[1] = leer.next();
@@ -137,16 +82,9 @@ class IntroduccionNombres {
     }
 }
 
-
-
-
-
-
-
-
 class Simbolos {
-    // Método para obtener los símbolos de los jugadores
-    public char[] obtenersimbolos(Scanner leer, String[] nombres) {
+    public char [] obtenersimbolos(Scanner leer, String[] nombres){
+        
         char[] Simbolos = new char[2];
         System.out.print(nombres[0] + " elige símbolo: ");
         Simbolos[0] = leer.next().charAt(0);
@@ -154,43 +92,29 @@ class Simbolos {
         System.out.print(nombres[1] + " elige símbolo: ");
         Simbolos[1] = leer.next().charAt(0);
 
-        // Verificar que los símbolos sean diferentes
         while (Simbolos[0] == Simbolos[1]) {
             System.out.print("Símbolo ya seleccionado. Por favor, elige otro: ");
             Simbolos[1] = leer.next().charAt(0);
         }
         return Simbolos;
+        
     }
 }
 
-
-
-
-
-
-
-
 class Turno {
-    // Método para determinar quién tiene el primer turno
-    public int orden(String[] nombres, Scanner leer) {
+    public int orden (String[] nombres, Scanner leer){
         System.out.print("¿Quién tendrá el turno 1? Introduzca 1 para " + nombres[0] + " o 2 para " + nombres[1] + ": ");
         int eleccion = leer.nextInt();
         while (eleccion != 1 && eleccion != 2) {
             System.out.print("Caracter no válido, introduzca uno válido: ");
             eleccion = leer.nextInt();
         }
-        // Se retorna el número de jugador que inicia
-        return eleccion==1 ? 1 : 2;
+return eleccion;
     }
 }
-
-
-
-
-
+    
 
 class Dimension {
-    // Método para obtener las dimensiones del tablero
     public int obtenerDimension(Scanner leer) {
         System.out.print("¿Qué tamaño quieres que tenga el tablero (mínimo 2)? ");
         int dimension = leer.nextInt();
@@ -202,14 +126,6 @@ class Dimension {
     }
 }
     
-
-
-
-
-
-
-
-
 class Tablero {
     private char[][] tablero;
     
@@ -226,14 +142,6 @@ class Tablero {
     }
 }
 
-
-
-
-
-
-
-
-
 class ImpresorTablero {
     public void imprimir(char[][] tablero, int dimension) {
         for (int i = 0; i < dimension; i++) {
@@ -249,6 +157,107 @@ class ImpresorTablero {
     }
 }
 
+class Juego {
+    public void iniciarJuego(char[][] tablero, int dimension, char simbolo1, char simbolo2, String nombre1, String nombre2) {
+        Scanner leer = new Scanner(System.in);
+        
+        boolean turno = true;
+        int contador = 0;
+ 
+        String nombre = nombre1;
+        char simbolo = simbolo1;
 
+        while (contador != dimension * dimension && HayGanador.comprobarGanador(tablero, dimension, simbolo)!= simbolo) {
+            ImpresorTablero impresor = new ImpresorTablero();
+        impresor.imprimir(tablero, dimension);
+            System.out.print(nombre + ", Introduce columna: ");
+            int columna = leer.nextInt();
+            System.out.print("Introduce fila: ");
+            int fila = leer.nextInt();
 
+            if (coordenadaValida(tablero, dimension, fila, columna)) {
+                tablero[fila - 1][columna - 1] = simbolo;
+                contador++;
+                turno = !turno;
+                
+                
+                
+                
+                nombre = turno ? nombre1 : nombre2;
+                simbolo = turno ? simbolo1 : simbolo2;
+            } else {
+                System.out.println("Coordenada inválida. Por favor, intenta de nuevo.");
+            }
+            if(HayGanador.comprobarGanador(tablero, dimension, simbolo)!= simbolo){
+            
+                    }
+        }
+        if (HayGanador.comprobarGanador(tablero, dimension, simbolo)== simbolo) {
+                    String ganadorNombre = turno ? nombre2 : nombre1;
+                    System.out.println("¡Felicidades, " + ganadorNombre + "! Has ganado.");
+                     
+                }
 
+        else {
+            System.out.println("El juego ha terminado en empate.");
+        }
+        
+    }
+
+    private boolean coordenadaValida(char[][] tablero, int dimension, int fila, int columna) {
+        return fila >= 1 && fila <= dimension && columna >= 1 && columna <= dimension && tablero[fila - 1][columna - 1] == ' ';
+    }
+}
+
+class HayGanador {
+    public static char comprobarGanador(char[][] tablero, int dimension, char simbolo) {
+        int bombero = 0;
+        for (int i = 0; i < dimension && bombero!=dimension; i++) {
+            
+            for (int j = 0; j < dimension; j++) {
+                if (tablero[i][j] == simbolo) {
+                    bombero++;
+                } 
+                
+                }
+                if (bombero!=dimension){
+                    bombero=0;
+            }
+        }
+
+        
+        for (int i = 0; i < dimension && bombero!=dimension; i++) {
+            
+            for (int j = 0; j < dimension; j++) {
+                if (tablero[j][i] == simbolo) {
+                    bombero++;
+                } 
+                
+                }
+                if (bombero!=dimension){
+                    bombero=0;
+            }
+        }
+        
+        for (int i = 0; i < dimension && bombero!=dimension; i++){
+            if (tablero[i][i] == simbolo) {
+                    bombero++;
+                } 
+        }
+        
+        if (bombero!=dimension){
+                    bombero=0;
+            }
+        
+        for (int i = 0; i < dimension && bombero!=dimension; i++){
+            if (tablero[i][dimension - 1 - i] == simbolo) {
+                    bombero++;
+                } 
+        }
+        if (bombero==dimension){
+            return simbolo;
+        }
+        
+        return ' ';
+    }
+}
